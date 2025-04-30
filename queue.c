@@ -1,27 +1,17 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 
-// TODO: Wrap these in POSIX mutexes
-typedef struct node_t {
+typedef struct Node {
 	void* data;
 	size_t size;
-struct node_t* next;
+struct Node* next;
 } node_t;
 
-typedef struct queue_t {
+typedef struct Queue {
 	node_t* front;
 	node_t* rear;
 } queue_t;
-
-void handle_incoming_uart(){
-	
-}
-
-void handle_outgoing_uart(){
-
-}
 
 /// Initializes a queue into the pointer of type 'queue_t*'
 void initialize_queue(queue_t* q){
@@ -75,7 +65,6 @@ void* dequeue(queue_t* q) {
 
     node_t* temp = q->front;
     void* data = temp->data;
-    *size = temp->size;
 
     q->front = q->front->next;
     if (q->front == NULL) {
@@ -107,11 +96,10 @@ void display_queue(queue_t* q, void (*print)(void*)) {
 
 /// Print function for integers
 void print_int(void* data) {
-    printf("%d ", *(int*)data);
+    printf("%d, ", *(int*)data);
 }
 
 /// Print function for null-terminated strings
 void print_string(void* data) {
-    // TODO: Double check this
-    printf("&s\n", data); 
+    printf("%s, ", data); 
 }
