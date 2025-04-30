@@ -1,3 +1,6 @@
+#ifndef QUEUES_H
+#define QUEUES_H
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,3 +106,6 @@ void print_int(void* data) {
 void print_string(void* data) {
     printf("%s, ", data); 
 }
+
+#endif
+
