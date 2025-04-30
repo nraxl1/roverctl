@@ -3,10 +3,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-// TODO: Remove this when not required for memcpy - see 'enqueue()'
-#include <string.h>
-
-
 // TODO: Wrap these in POSIX mutexes
 typedef struct node_t {
 	void* data;
@@ -36,9 +32,9 @@ int queue_is_empty(queue_t* q){
 	return (q->front == NULL);
 }
 
-// TODO: Remove the malloc and memcpy shenenigans as they are not needed as long as the caller properly tracks the type of the variable q->data points to
+/// WARNING: The burden of tracking the type of the variable pointed to by q->data is on the caller
 /// Enqueues an element into the given queue
-void enqueue(queue_t* q, void* data, size_t data_size) {
+void enqueue(queue_t* q, void* data) {
     node_t* newNode = (node_t*)malloc(sizeof(node_t));
     if (newNode == NULL) {
         printf("Memory allocation failed!\n");
@@ -69,6 +65,7 @@ void enqueue(queue_t* q, void* data, size_t data_size) {
 
 /// WARNING: CAN RETURN A NULL POINTER IF GIVEN AN EMPTY QUEUE
 /// WARNING: THE RESULTING DATA IS TO BE DESTROYED ACCORDINGLY
+/// WARNING: The burden of tracking the type of the variable pointed to by the return value is on the caller
 /// Dequeues an element from the given queue
 void* dequeue(queue_t* q) {
     if (queue_is_empty(q)) {
