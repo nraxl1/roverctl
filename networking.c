@@ -12,6 +12,7 @@
 
 struct timespec sleep_duration = {0, 50 * 1000000}; // 0.05 seconds
 
+// TODO: Move all initialization to initialize.c
 void initialize_networking() {
   switchbox_set_pin(UART_RX_PIN, SWB_UART0_RX);
   switchbox_set_pin(UART_TX_PIN, SWB_UART0_TX);
