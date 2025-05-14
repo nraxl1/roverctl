@@ -14,9 +14,12 @@
 #include_next "networking.h"
 
 // These GPIO pins can be changed with no issues because of the way switchbox works
-#define UART_RX_PIN = IO_AR0
-#define UART_TX_PIN = IO_AR1
-#define UART_CHANNEL = UART0
+#define UART_RX_PIN IO_AR0
+#define UART_TX_PIN IO_AR1
+#define UART_CHANNEL UART0
+
+// TODO: Macro definitions for sensors here
+#define SENSOR_COUNT 5
 
 int main() {
   // --- initialize system-wide resources here ---
@@ -39,6 +42,17 @@ int main() {
   pthread_create(&incoming_networking_thread, NULL, incoming_networking_handler, void *restrict arg)
   
   // -------------------------------------------------
-
+  
+  // Sensors
+  // TODO: set switchbox, initialize global variables about sensors
+  mutex_queue_t sensor_queues[] // WORK IN PROGRESS HERE
+  initialize_mutex_queue(&distance1);
+  initialize_mutex_queue(&distance2);
+  initialize_mutex_queue(&distance3);
+  initialize_mutex_queue(&color1);
+  initialize_mutex_queue(&color2);
+  pthread_t distance_thread1;
+  pthread_t distance_thread2;
+  pthread_t distance_thread3;
 
 }
