@@ -1,9 +1,16 @@
-#ifndef QUEUES_H
-#define QUEUES_H
+#ifndef QUEUE_H
+#define QUEUE_H
+
+/*
+ * Internal library helping with queue stuff.
+ * Implemented from scratch to cut down reliance on GNU code
+ * This is not to be used as an API by the user under normal circumstances.
+*/
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 
 typedef struct Node {
 	void* data;
@@ -16,96 +23,12 @@ typedef struct Queue {
 	node_t* rear;
 } queue_t;
 
-/// Initializes a queue into the pointer of type 'queue_t*'
-void initialize_queue(queue_t* q){
-	q->front = q->rear = NULL;
-}
+void initialize_queue(queue_t* q);
+int queue_is_empty(queue_t* q);
+void enqueue(queue_t* q, void* data);
+void* dequeue(queue_t* q);
+void display_queue(queue_t* q, void (*print)(void*));
+void print_int(void* data);
+void print_string(void* data);
 
-int queue_is_empty(queue_t* q){
-	return (q->front == NULL);
-}
-
-/// WARNING: The burden of tracking the type of the variable pointed to by q->data is on the caller
-/// Enqueues an element into the given queue
-void enqueue(queue_t* q, void* data) {
-    node_t* newNode = (node_t*)malloc(sizeof(node_t));
-    if (newNode == NULL) {
-        printf("Memory allocation failed!\n");
-        return;
-    }
-
-    /* Queue owns the data
-    newNode->data = malloc(data_size);  // Allocate memory for the data
-    if (newNode->data == NULL) {
-        printf("Memory allocation for data failed!\n");
-        free(newNode);
-        return;
-    }
-    memcpy(newNode->data, data, data_size);
-    */
-
-    // Queue holds a pointer to externally managed data
-    newNode->data = data;
-    newNode->next = NULL;
-    
-    if (queue_is_empty(q)) {
-        q->front = q->rear = newNode;
-    } else {
-        q->rear->next = newNode;
-        q->rear = newNode;
-    }
-}
-
-/// WARNING: CAN RETURN A NULL POINTER IF GIVEN AN EMPTY QUEUE
-/// WARNING: THE RESULTING DATA IS TO BE DESTROYED ACCORDINGLY
-/// WARNING: The burden of tracking the type of the variable pointed to by the return value is on the caller
-/// Dequeues an element from the given queue
-void* dequeue(queue_t* q) {
-    if (queue_is_empty(q)) {
-        printf("Queue is empty!\n");
-        return NULL;
-    }
-
-    node_t* temp = q->front;
-    void* data = temp->data;
-
-    q->front = q->front->next;
-    if (q->front == NULL) {
-        q->rear = NULL;
-    }
-
-    free(temp);
-    return data;
-}
-
-// --- Helper Functions for Display ---
-
-/// Prints a queue with the given print function
-void display_queue(queue_t* q, void (*print)(void*)) {
-    if (queue_is_empty(q)) {
-        printf("Queue is empty!\n");
-        return;
-    }
-
-    node_t* current = q->front;
-    while (current != NULL) {
-        print(current->data);  // Print the data
-        current = current->next;
-    }
-    printf("\n");
-}
-
-// --- For use in conjunction with display_queue ---
-
-/// Print function for integers
-void print_int(void* data) {
-    printf("%d, ", *(int*)data);
-}
-
-/// Print function for null-terminated strings
-void print_string(void* data) {
-    printf("%s, ", data); 
-}
-
-#endif
-
+#endif /* QUEUE_H */
