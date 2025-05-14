@@ -8,6 +8,8 @@ typedef struct MutexQueue {
 
 void initialize_mutex_queue(mutex_queue_t* mq) {
         pthread_mutex_init(&mq->lock, NULL);
+        mq->shared_queue = malloc(sizeof(queue_t));
+        // if allocation fails, nothing to do in a real time embedded system really
         initialize_queue(mq->shared_queue);
 }
 
