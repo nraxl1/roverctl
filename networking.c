@@ -7,10 +7,10 @@
 #include <threads.h>
 #include <uart.h>
 
-#define UART_RX_PIN = IO_AR0
-#define UART_TX_PIN = IO_AR1
+#define UART_RX_PIN IO_AR0
+#define UART_TX_PIN IO_AR1
 
-struct timespec sleep_duration = {0, 50 * 1000000}; // 0.05 seconds
+static const struct timespec sleep_duration = {0, 50 * 1000000}; // 0.05 seconds
 
 // TODO: Move all initialization to initialize.c
 void initialize_networking() {
@@ -29,7 +29,7 @@ int outgoing_networking_handler(mutex_queue_t *outgoing_queue) {
       thrd_sleep(&sleep_duration, NULL);
     } else {
       void *message = mutex_dequeue(outgoing_queue);
-      uint size = strlen(message);
+      uint size = strlen((char *)message);
       if (size <= UINT8_MAX) {
         uart_send(UART0, size);
         for (const uint8_t *p = message; *p != '\0';
@@ -67,12 +67,13 @@ int incoming_networking_handler(mutex_queue_t *incoming_queue) {
         malloc((expected_size + 1) *
                sizeof(uint8_t)); // cast to uint8_t* because ISO C doesnt allow
                                  // indirection on void pointers
+    uint8_t *write_ptr = message;
     while (expected_size > 0) {
-      *message = uart_recv(UART0);
-      message++;
+      *write_ptr = uart_recv(UART0);
+      *write_ptr++;
       expected_size--;
     }
-    *message = '\0';
+    *write_ptr = '\0';
     mutex_enqueue(incoming_queue, message);
     // ownership transferred to queue, no need to free()
   }
