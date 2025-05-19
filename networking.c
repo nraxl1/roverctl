@@ -18,15 +18,26 @@ void initialize_networking() {
   switchbox_set_pin(UART_TX_PIN, SWB_UART0_TX);
 }
 
+void yield_if_no_data() {
+  while(1) {
+    if (uart_has_data(UART0) == 0) {
+      pthread_yield();
+    } else {
+      return;
+    }
+  }
+}
 // Fix this mess later (not happening)
 int outgoing_networking_handler(mutex_queue_t *outgoing_queue) {
   while (1) {
     if (!uart_has_space()) {
-      thrd_sleep(&sleep_duration, NULL);
+      // thrd_sleep(&sleep_duration, NULL);
       sd_notify(0, "STATUS=Warning: UART outgoing queue congested (full)");
+      pthread_yield();
 
     } else if (mutex_queue_is_empty(outgoing_queue)) {
-      thrd_sleep(&sleep_duration, NULL);
+      // thrd_sleep(&sleep_duration, NULL);
+      pthread_yield();
     } else {
       void *message = mutex_dequeue(outgoing_queue);
       uint size = strlen((char *)message);
@@ -36,9 +47,10 @@ int outgoing_networking_handler(mutex_queue_t *outgoing_queue) {
              p++) { // not sure if the deferencing works as I anticipate
         verify:
           if (!uart_has_space(UART0)) {
-            thrd_sleep(&sleep_duration, NULL);
+            // thrd_sleep(&sleep_duration, NULL);
             sd_notify(0,
                       "STATUS=Warning: UART outgoing queue congested (full)");
+            pthread_yield();
             goto verify;
           }
           uart_send(UART0, *p);
@@ -62,6 +74,7 @@ int incoming_networking_handler(mutex_queue_t *incoming_queue) {
   // parse the rest accordingly
 
   while (1) {
+    yield_if_no_data();
     uint8_t expected_size = uart_recv(UART0);
     uint8_t *message =
         malloc((expected_size + 1) *
@@ -69,6 +82,7 @@ int incoming_networking_handler(mutex_queue_t *incoming_queue) {
                                  // indirection on void pointers
     uint8_t *write_ptr = message;
     while (expected_size > 0) {
+      yield_if_no_data();
       *write_ptr = uart_recv(UART0);
       *write_ptr++;
       expected_size--;
