@@ -1,0 +1,6 @@
+*.o
+*.so
+build/
+.vscode/
+__pycache__/
+*.swp

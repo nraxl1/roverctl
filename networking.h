@@ -4,7 +4,7 @@
 
 #include "mutex_queue.h"
 
-int outgoing_networking_handler(mutex_queue_t *outgoing_queue);
-int incoming_networking_handler(mutex_queue_t *incoming_queue);
+void *outgoing_networking_handler(void *outgoing_queue);
+void *incoming_networking_handler(void *incoming_queue);
 
 #endif /* NETWORKING_H */

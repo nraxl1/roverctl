@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+PROJECT_DIR="$HOME/roverctl"
+VERSION="0.1.2"
+
+show_help() {
+    cat <<EOF
+rover - Project automation script
+
+Usage: rover {run|test|build|help|version} [args...]
+
+Commands:
+  run [args...]        Build and run the main binary
+  test {all|networking|control|sensors} [args...]        Build and run the test binary with select modules 
+  build [make-args...] Run make in the project directory with given arguments
+  help, --help, -h     Show this help message
+  version, --version, -v  Show version information
+
+Examples:
+  rover run
+  rover test sensors control
+  rover build clean
+EOF
+}
+
+show_version() {
+    echo "rover version $VERSION"
+}
+
+if [ $# -lt 1 ]; then
+    show_help
+    exit 1
+fi
+
+case "$1" in
+    help|--help|-h)
+        show_help
+        exit 0
+        ;;
+    version|--version|-v)
+        show_version
+        exit 0
+        ;;
+esac
+
+# Warn if not in the project directory
+if [ "$(pwd)" != "$PROJECT_DIR" ]; then
+    echo "Warning: You are not in the project directory ($PROJECT_DIR)."
+    echo "The script will still work, but relative paths and other terminal commands may not behave as expected."
+fi
+
+cmd="$1"
+shift
+
+case "$cmd" in
+    run)
+        make -C "$PROJECT_DIR" roverctl || exit 1
+        exec "$PROJECT_DIR/roverctl" "$@"
+        ;;
+    test)
+        make -C "$PROJECT_DIR" roverctl-test || exit 1
+        exec "$PROJECT_DIR/roverctl-test" "$@"
+        ;;
+    build)
+        exec make -C "$PROJECT_DIR" "$@"
+        ;;
+    *)
+        echo "Unknown command: $cmd"
+        show_help
+        exit 1
+        ;;
+esac
